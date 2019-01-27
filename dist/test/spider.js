@@ -75,6 +75,11 @@ describe('Spider', () => {
         const res = yield spider.exec(() => { return { hello: 'world' }; });
         assert.equal(JSON.stringify(res), JSON.stringify({ hello: 'world' }));
     }));
+    it('use distiller', () => __awaiter(this, void 0, void 0, function* () {
+        yield spider.load('https://example.com');
+        const res = yield spider.distill();
+        assert(res.length > 0);
+    })).timeout(10000);
     // TODO: test waitFor
     // TODO: test userAgent
 });

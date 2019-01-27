@@ -8,7 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require("fs");
 const url = require("url");
+const path = require("path");
 const ootils_1 = require("ootils");
 const await_semaphore_1 = require("await-semaphore");
 const cooky_1 = require("./cooky");
@@ -125,7 +127,7 @@ class Spider {
             cookies.forEach(cookie => this.page.setCookie(typeof cookie === 'string' ? cooky_1.Cooky.parse(cookie) : cookie));
         });
     }
-    mouseMove(x, y) {
+    mouseMove(x, y, steps = 100) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const [w, h] = yield this.exec(() => [window.innerWidth, window.innerHeight]);
@@ -135,15 +137,21 @@ class Spider {
                 ];
                 if (this.verbose)
                     console.log(`Moving mouse to ${x_}x${y_}`);
-                yield this.page.mouse.move(x_, y_, { steps: 100 });
+                yield this.page.mouse.move(x_, y_, { steps: steps });
             }
-            catch (ex) {
+            catch (exc) {
                 // No-op: it could be that no window is loaded yet
                 if (this.verbose)
-                    console.log('Error moving mouse:', ex);
+                    console.log('Error moving mouse:', exc);
             }
         });
     }
+    /**
+     * Sends a POST request from Node, using the browser's cookies
+     * TODO: send the POST request by injecting Javascript instead of from Node
+     * @param url destination of the POST request
+     * @param opts optional settings for the POST request
+     */
     post(url, opts) {
         return __awaiter(this, void 0, void 0, function* () {
             opts = opts || {};
@@ -170,6 +178,16 @@ class Spider {
                     });
                 }
             });
+        });
+    }
+    /**
+     * Injects the distiller used by Chromium into the webpage and returns the main content.
+     */
+    distill() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'));
+            const distilled = yield this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]');
+            return distilled;
         });
     }
 }

@@ -23,5 +23,9 @@ gulp.task('ts', function() {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build', gulp.series('ts'));
+gulp.task('js', function() {
+    return gulp.src('src/**/*.js').pipe(gulp.dest('dist'));
+})
+
+gulp.task('build', gulp.series('js', 'ts'));
 gulp.task('default', gulp.series('build'));

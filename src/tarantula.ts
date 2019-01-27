@@ -1,4 +1,6 @@
+import * as fs from 'fs';
 import * as url from 'url';
+import * as path from 'path';
 import { Requests } from 'ootils';
 import { Mutex } from 'await-semaphore';
 import { Cooky } from './cooky';
@@ -167,6 +169,12 @@ export class Spider {
         }
     }
 
+    /**
+     * Sends a POST request from Node, using the browser's cookies
+     * TODO: send the POST request by injecting Javascript instead of from Node
+     * @param url destination of the POST request
+     * @param opts optional settings for the POST request
+     */
     async post(url: string, opts?: PostOptions) {
         opts = opts || {};
 
@@ -201,6 +209,14 @@ export class Spider {
         });
     }
 
+    /**
+     * Injects the distiller used by Chromium into the webpage and returns the main content.
+     */
+    async distill() {
+        await this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'));
+        const distilled = await this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]');
+        return distilled as string
+    }
 }
 
 export class SpiderPool {

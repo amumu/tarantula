@@ -73,6 +73,12 @@ describe('Spider', () => {
         assert.equal(JSON.stringify(res), JSON.stringify({hello: 'world'}))
     });
 
+    it('use distiller', async () => {
+        await spider.load('https://example.com');
+        const res = await spider.distill();
+        assert(res.length > 0);
+    }).timeout(10000);
+
     // TODO: test waitFor
     // TODO: test userAgent
 });

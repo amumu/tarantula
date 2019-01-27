@@ -52,8 +52,18 @@ export declare class Spider {
     clone(): Promise<Spider>;
     kill(): Promise<void>;
     setCookie(...cookies: (puppeteer.SetCookie | string)[]): Promise<void>;
-    mouseMove(x?: number, y?: number): Promise<void>;
+    mouseMove(x?: number, y?: number, steps?: number): Promise<void>;
+    /**
+     * Sends a POST request from Node, using the browser's cookies
+     * TODO: send the POST request by injecting Javascript instead of from Node
+     * @param url destination of the POST request
+     * @param opts optional settings for the POST request
+     */
     post(url: string, opts?: PostOptions): Promise<any>;
+    /**
+     * Injects the distiller used by Chromium into the webpage and returns the main content.
+     */
+    distill(): Promise<string>;
 }
 export declare class SpiderPool {
     spiders: Spider[];
