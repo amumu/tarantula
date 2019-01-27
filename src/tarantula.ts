@@ -101,7 +101,11 @@ export class Spider {
             return this.page.goto(uri, opts);
     }
 
-    screenshot(opts: any = {}) {
+    /**
+     * Shorthand for the `page.screenshot()` function.
+     * @param opts screenshot options object
+     */
+    screenshot(opts: puppeteer.ScreenshotOptions = {}) {
         if (!('fullPage' in opts)) opts.fullPage = true;
         return this.page.screenshot(opts);
     }
@@ -216,6 +220,22 @@ export class Spider {
         await this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'));
         const distilled = await this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]');
         return distilled as string
+    }
+
+    /**
+     * Saves the current page into a web archive in MHTML format
+     * @param path local destination of the web archive MHTML file
+     */
+    async archive(path: string) {
+        const session = await this.page.target().createCDPSession();
+        await session.send('Page.enable');
+        const data: any = await session.send('Page.captureSnapshot');
+        return new Promise((resolve, reject) => {
+            fs.writeFile(path, data['data'], err => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
     }
 }
 

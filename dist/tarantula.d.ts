@@ -44,7 +44,11 @@ export declare class Spider {
     exec(code: puppeteer.EvaluateFn, ...args: any[]): Promise<any>;
     url(): Promise<string>;
     load(uri: url.Url | string, opts?: LoadOptions): Promise<puppeteer.Response>;
-    screenshot(opts?: any): Promise<string>;
+    /**
+     * Shorthand for the `page.screenshot()` function.
+     * @param opts screenshot options object
+     */
+    screenshot(opts?: puppeteer.ScreenshotOptions): Promise<string | Buffer>;
     awaitResponse(filter: (response: Response) => any, timeout?: number): Promise<any>;
     /**
      * Creates a new tab using parent browser and copies settings from this instance into new page.
@@ -64,6 +68,11 @@ export declare class Spider {
      * Injects the distiller used by Chromium into the webpage and returns the main content.
      */
     distill(): Promise<string>;
+    /**
+     * Saves the current page into a web archive in MHTML format
+     * @param path local destination of the web archive MHTML file
+     */
+    archive(path: string): Promise<{}>;
 }
 export declare class SpiderPool {
     spiders: Spider[];

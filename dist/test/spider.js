@@ -8,8 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const tarantula_1 = require("../tarantula");
+const fs = require("fs");
+const tmp = require("tmp");
 const assert = require("assert");
+const tarantula_1 = require("../tarantula");
 describe('Spider', () => {
     let spider;
     beforeEach(() => __awaiter(this, void 0, void 0, function* () { return spider = yield tarantula_1.Spider.create(); }));
@@ -79,6 +81,13 @@ describe('Spider', () => {
         yield spider.load('https://example.com');
         const res = yield spider.distill();
         assert(res.length > 0);
+    })).timeout(10000);
+    it('create web archive', () => __awaiter(this, void 0, void 0, function* () {
+        const path = tmp.fileSync({ postfix: '.mhtml' });
+        yield spider.load('https://example.com');
+        yield spider.archive(path.name);
+        assert(fs.existsSync(path.name));
+        assert(fs.readFileSync(path.name, 'UTF8').length > 0);
     })).timeout(10000);
     // TODO: test waitFor
     // TODO: test userAgent

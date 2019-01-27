@@ -76,6 +76,10 @@ class Spider {
                 return this.page.goto(uri, opts);
         });
     }
+    /**
+     * Shorthand for the `page.screenshot()` function.
+     * @param opts screenshot options object
+     */
     screenshot(opts = {}) {
         if (!('fullPage' in opts))
             opts.fullPage = true;
@@ -188,6 +192,25 @@ class Spider {
             yield this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'));
             const distilled = yield this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]');
             return distilled;
+        });
+    }
+    /**
+     * Saves the current page into a web archive in MHTML format
+     * @param path local destination of the web archive MHTML file
+     */
+    archive(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = yield this.page.target().createCDPSession();
+            yield session.send('Page.enable');
+            const data = yield session.send('Page.captureSnapshot');
+            return new Promise((resolve, reject) => {
+                fs.writeFile(path, data['data'], err => {
+                    if (err)
+                        reject(err);
+                    else
+                        resolve();
+                });
+            });
         });
     }
 }

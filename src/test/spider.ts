@@ -1,5 +1,7 @@
-import { Spider } from '../tarantula'
+import * as fs from 'fs';
+import * as tmp from 'tmp';
 import * as assert from 'assert';
+import { Spider } from '../tarantula'
 
 describe('Spider', () => {
     let spider: Spider;
@@ -77,6 +79,14 @@ describe('Spider', () => {
         await spider.load('https://example.com');
         const res = await spider.distill();
         assert(res.length > 0);
+    }).timeout(10000);
+
+    it('create web archive', async () => {
+        const path = tmp.fileSync({postfix: '.mhtml'})
+        await spider.load('https://example.com');
+        await spider.archive(path.name);
+        assert(fs.existsSync(path.name));
+        assert(fs.readFileSync(path.name, 'UTF8').length > 0)
     }).timeout(10000);
 
     // TODO: test waitFor
