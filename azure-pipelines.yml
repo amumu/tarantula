@@ -1,0 +1,23 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+variables:
+  - group: global
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '8.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    yarn install
+    yarn build
+  displayName: 'yarn install and build'
+
+- script: |
+    yarn test
+  displayName: 'yarn test'
