@@ -16,7 +16,7 @@ describe('SpiderPool', () => {
         let errored = false;
         await pool.acquire();
         try {
-            await pool.acquire();
+            await pool.acquire(-1);
         } catch(err) {
             errored = true;
         } finally {
@@ -40,9 +40,9 @@ describe('SpiderPool', () => {
 
     it('pool flooding and flushing', async () => {
         for (let i = 0; i < 5; i++) {
-            const spider = await pool.acquire();
+            const spider = await pool.acquire(-1);
             for (let j = 0; j < 5; j++)
-                await pool.acquire().catch(err => {});
+                await pool.acquire(-1).catch(err => {});
             await pool.release(spider);
         }
         assert.equal(0, pool.awaiters.length);

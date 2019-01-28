@@ -241,6 +241,13 @@ class SpiderPool {
             return new SpiderPool(browser, spiders);
         });
     }
+    /**
+     * Acquire an available Spider from the pool. If `timeoutMillis` is zero, wait indefinitely. If
+     * it's a negative number, throw a timeout error immediately if no Spider is available.
+     * Otherwise, wait the given number of milliseconds until a Spider becomes available. By default
+     * this function waits indefinitely.
+     * @param timeoutMillis milliseconds to wait until timeout error is thrown
+     */
     acquire(timeoutMillis = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             const timeoutError = new Error('Timeout exceeded waiting for a Spider');
@@ -254,7 +261,7 @@ class SpiderPool {
                 return spider;
             }
             // Early exit: a spider is not available and we can't wait
-            if (timeoutMillis === 0) {
+            if (timeoutMillis < 0) {
                 releaseMutex();
                 throw (timeoutError);
             }
@@ -267,7 +274,7 @@ class SpiderPool {
                     resolve(spider);
                     // Spider is already busy, no need to add it to the queue
                 });
-                // If timeout is negative, wait forever
+                // If timeout is zero, wait forever
                 if (timeoutMillis > 0) {
                     // When timeout is reached, remove callback from queue and reject promise
                     timer = setTimeout(() => {

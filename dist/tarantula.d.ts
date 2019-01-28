@@ -83,6 +83,13 @@ export declare class SpiderPool {
     awaiters: ((spider: Spider) => Promise<void>)[];
     protected constructor(browser: puppeteer.Browser, spiders: Spider[]);
     static create(num?: number, opts?: SpiderOptions): Promise<SpiderPool>;
+    /**
+     * Acquire an available Spider from the pool. If `timeoutMillis` is zero, wait indefinitely. If
+     * it's a negative number, throw a timeout error immediately if no Spider is available.
+     * Otherwise, wait the given number of milliseconds until a Spider becomes available. By default
+     * this function waits indefinitely.
+     * @param timeoutMillis milliseconds to wait until timeout error is thrown
+     */
     acquire(timeoutMillis?: number): Promise<Spider>;
     release(spider: Spider): Promise<void>;
     dispose(): Promise<void>;

@@ -22,7 +22,7 @@ describe('SpiderPool', () => {
         let errored = false;
         yield pool.acquire();
         try {
-            yield pool.acquire();
+            yield pool.acquire(-1);
         }
         catch (err) {
             errored = true;
@@ -48,9 +48,9 @@ describe('SpiderPool', () => {
     })).timeout(10000);
     it('pool flooding and flushing', () => __awaiter(this, void 0, void 0, function* () {
         for (let i = 0; i < 5; i++) {
-            const spider = yield pool.acquire();
+            const spider = yield pool.acquire(-1);
             for (let j = 0; j < 5; j++)
-                yield pool.acquire().catch(err => { });
+                yield pool.acquire(-1).catch(err => { });
             yield pool.release(spider);
         }
         assert.equal(0, pool.awaiters.length);
