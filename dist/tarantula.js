@@ -167,7 +167,7 @@ class Spider {
             // Copy user agent from spider if none is provided
             opts.headers['user-agent'] = opts.headers['user-agent'] || (yield this.exec(() => navigator.userAgent));
             // Copy cookie from spider if none is provided
-            opts.headers['cookie'] = opts.headers['cookie'] || (yield this.page.cookies()).map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+            opts.headers['cookie'] = opts.headers['cookie'] || (yield this.page.cookies()).map(cookie => `${cookie.name}=${cookie.value}`).join(' ');
             // Debug info
             if (this.verbose) {
                 console.log(`Sending post request to ${url}`);
@@ -185,12 +185,14 @@ class Spider {
         });
     }
     /**
-     * Injects the distiller used by Chromium into the webpage and returns the main content.
+     * Injects the distiller used by Firefox into the webpage and returns the main content.
      */
     distill() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'));
-            const distilled = yield this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]');
+            // await this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'))
+            // const distilled = await this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]')
+            yield this.exec(fs.readFileSync(path.join(__dirname, 'readability.js'), 'UTF8'));
+            const distilled = yield this.exec('new Readability(document).parse().content');
             return distilled;
         });
     }

@@ -65,7 +65,7 @@ export declare class Spider {
      */
     post(url: string, opts?: PostOptions): Promise<any>;
     /**
-     * Injects the distiller used by Chromium into the webpage and returns the main content.
+     * Injects the distiller used by Firefox into the webpage and returns the main content.
      */
     distill(): Promise<string>;
     /**

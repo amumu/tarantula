@@ -15,6 +15,7 @@ steps:
 
 - script: |
     yarn install
+    yarn clean
     yarn build
   displayName: 'yarn install and build'
 
