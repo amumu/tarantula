@@ -63,7 +63,7 @@ class Spider {
     }
     url() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.exec(() => window.location.href);
+            return yield this.exec(() => window.location.href).catch(err => { });
         });
     }
     load(uri, opts = {}) {
@@ -165,7 +165,8 @@ class Spider {
                 return map;
             }, {});
             // Copy user agent from spider if none is provided
-            opts.headers['user-agent'] = opts.headers['user-agent'] || (yield this.exec(() => navigator.userAgent));
+            opts.headers['user-agent'] = opts.headers['user-agent'] ||
+                (yield this.exec(() => navigator.userAgent));
             // Copy cookie from spider if none is provided
             opts.headers['cookie'] = opts.headers['cookie'] || (yield this.page.cookies()).map(cookie => `${cookie.name}=${cookie.value}`).join(' ');
             // Debug info

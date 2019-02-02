@@ -91,7 +91,7 @@ export class Spider {
     }
 
     async url() {
-        return await this.exec(() => window.location.href) as string
+        return await this.exec(() => window.location.href).catch(err => {}) as string
     }
 
     async load(uri: url.Url | string, opts: LoadOptions = {}) {
@@ -189,8 +189,8 @@ export class Spider {
         }, {} as StringMap)
 
         // Copy user agent from spider if none is provided
-        opts.headers['user-agent'] = opts.headers['user-agent'] || await this.exec(
-            () => navigator.userAgent)
+        opts.headers['user-agent'] = opts.headers['user-agent'] ||
+            await this.exec(() => navigator.userAgent)
 
         // Copy cookie from spider if none is provided
         opts.headers['cookie'] = opts.headers['cookie'] || (await this.page.cookies()).map(
