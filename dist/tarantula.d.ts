@@ -40,7 +40,7 @@ export declare class Spider {
      * See https://github.com/GoogleChrome/puppeteer/blob/master/DeviceDescriptors.js
      * @param deviceName name of the device to emulate, for example "iPhone X"
      */
-    emulate(deviceName: string): void;
+    emulate(deviceName: string): Promise<void>;
     exec(code: puppeteer.EvaluateFn, ...args: any[]): Promise<any>;
     url(): Promise<string>;
     load(uri: url.Url | string, opts?: LoadOptions): Promise<puppeteer.Response>;
@@ -55,7 +55,7 @@ export declare class Spider {
      */
     clone(): Promise<Spider>;
     kill(): Promise<void>;
-    setCookie(...cookies: (puppeteer.SetCookie | string)[]): Promise<void>;
+    setCookie(...cookies: (puppeteer.SetCookie | string)[]): Promise<void[]>;
     mouseMove(x?: number, y?: number, steps?: number): Promise<void>;
     /**
      * Sends a POST request from Node, using the browser's cookies
@@ -72,7 +72,7 @@ export declare class Spider {
      * Saves the current page into a web archive in MHTML format
      * @param path local destination of the web archive MHTML file
      */
-    archive(path: string): Promise<{}>;
+    archive(path: string): Promise<void>;
 }
 export declare class SpiderPool {
     spiders: Spider[];

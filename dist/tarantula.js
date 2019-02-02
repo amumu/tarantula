@@ -43,10 +43,10 @@ class Spider {
             }
             // Hide bot hints from user agent
             const userAgent = yield page.evaluate(() => navigator.userAgent);
-            page.setUserAgent(userAgent.replace('Headless', ''));
+            yield page.setUserAgent(userAgent.replace('Headless', ''));
             // Spider can be anything we want!
             if (opts.emulate) {
-                page.emulate(devices[opts.emulate]);
+                yield page.emulate(devices[opts.emulate]);
             }
             return new Spider(browser, page, ownBrowser, opts.verbose);
         });
@@ -56,7 +56,7 @@ class Spider {
      * @param deviceName name of the device to emulate, for example "iPhone X"
      */
     emulate(deviceName) {
-        this.page.emulate(devices[deviceName]);
+        return this.page.emulate(devices[deviceName]);
     }
     exec(code, ...args) {
         return this.page.evaluate(code, args);
@@ -128,7 +128,7 @@ class Spider {
     }
     setCookie(...cookies) {
         return __awaiter(this, void 0, void 0, function* () {
-            cookies.forEach(cookie => this.page.setCookie(typeof cookie === 'string' ? cooky_1.Cooky.parse(cookie) : cookie));
+            return Promise.all(cookies.map(cookie => this.page.setCookie(typeof cookie === 'string' ? cooky_1.Cooky.parse(cookie) : cookie)));
         });
     }
     mouseMove(x, y, steps = 100) {
@@ -318,7 +318,7 @@ class SpiderPool {
         return __awaiter(this, void 0, void 0, function* () {
             const spider = yield this.acquire(acquireTimeout);
             try {
-                return yield callback(spider);
+                return callback(spider);
             }
             finally {
                 this.release(spider);
@@ -328,7 +328,7 @@ class SpiderPool {
     dispose() {
         return __awaiter(this, void 0, void 0, function* () {
             yield Promise.all(this.spiders.map(spider => spider.kill()));
-            yield this.browser.close();
+            return this.browser.close();
         });
     }
 }

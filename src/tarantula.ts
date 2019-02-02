@@ -68,11 +68,11 @@ export class Spider {
 
         // Hide bot hints from user agent
         const userAgent = await page.evaluate(() => navigator.userAgent) as string
-        page.setUserAgent(userAgent.replace('Headless', ''))
+        await page.setUserAgent(userAgent.replace('Headless', ''))
 
         // Spider can be anything we want!
         if (opts.emulate) {
-            page.emulate(devices[opts.emulate])
+            await page.emulate(devices[opts.emulate])
         }
 
         return new Spider(browser, page, ownBrowser, opts.verbose)
@@ -83,7 +83,7 @@ export class Spider {
      * @param deviceName name of the device to emulate, for example "iPhone X"
      */
     emulate(deviceName: string) {
-        this.page.emulate(devices[deviceName])
+        return this.page.emulate(devices[deviceName])
     }
 
     exec(code: puppeteer.EvaluateFn, ...args: any[]) {
@@ -155,8 +155,8 @@ export class Spider {
     }
 
     async setCookie(...cookies: (puppeteer.SetCookie | string)[]) {
-        cookies.forEach(cookie =>
-            this.page.setCookie(typeof cookie === 'string' ? Cooky.parse(cookie) : cookie))
+        return Promise.all(cookies.map(cookie =>
+            this.page.setCookie(typeof cookie === 'string' ? Cooky.parse(cookie) : cookie)))
     }
 
     async mouseMove(x?: number, y?: number, steps: number = 100) {
@@ -232,7 +232,7 @@ export class Spider {
         const session = await this.page.target().createCDPSession()
         await session.send('Page.enable')
         const data: any = await session.send('Page.captureSnapshot')
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             fs.writeFile(path, data['data'], err => {
                 if (err) reject(err)
                 else resolve()
@@ -356,12 +356,12 @@ export class SpiderPool {
 
     async with<T>(callback: (spider: Spider) => Promise<T>, acquireTimeout: number = 0) {
         const spider = await this.acquire(acquireTimeout)
-        try { return await callback(spider) }
+        try { return callback(spider) }
         finally { this.release(spider) }
     }
 
     async dispose() {
         await Promise.all(this.spiders.map(spider => spider.kill()))
-        await this.browser.close()
+        return this.browser.close()
     }
 }
