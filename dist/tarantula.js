@@ -317,10 +317,7 @@ class SpiderPool {
     dispose() {
         return __awaiter(this, void 0, void 0, function* () {
             yield Promise.all(this.spiders.map(spider => spider.kill()));
-            const pages = yield this.browser.pages();
-            // It's possible that the browser was
-            if (pages.length === 0)
-                yield this.browser.close();
+            yield this.browser.close();
         });
     }
 }

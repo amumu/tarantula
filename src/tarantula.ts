@@ -356,8 +356,6 @@ export class SpiderPool {
 
     async dispose() {
         await Promise.all(this.spiders.map(spider => spider.kill()))
-        const pages = await this.browser.pages()
-        // It's possible that the browser was
-        if (pages.length === 0) await this.browser.close()
+        await this.browser.close()
     }
 }
