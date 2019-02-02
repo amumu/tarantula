@@ -127,7 +127,7 @@ describe('SpiderPool', () => {
         }
         assert.equal(0, pool.awaiters.length);
         assert.equal(0, pool.spidersBusy.length);
-        pool.dispose();
+        yield pool.dispose();
     })).timeout(10000);
     it('load page', () => __awaiter(this, void 0, void 0, function* () {
         const spider = yield pool.acquire();
@@ -163,6 +163,29 @@ describe('SpiderPool', () => {
         const spider = yield pool.acquire();
         const res = yield spider.exec(() => { return { hello: 'world' }; });
         assert.equal(JSON.stringify(res), JSON.stringify({ hello: 'world' }));
+    }));
+    it('using with() to auto-release on success', () => __awaiter(this, void 0, void 0, function* () {
+        const pool = yield tarantula_1.SpiderPool.create(1);
+        const res = yield pool.with((spider) => __awaiter(this, void 0, void 0, function* () {
+            return yield spider.exec(() => 'hello world');
+        }));
+        // Result should be expected
+        assert.equal(res, 'hello world');
+        // Acquiring a new Spider should work
+        yield pool.acquire(-1);
+        yield pool.dispose();
+    }));
+    it('using with() to auto-release on failure', () => __awaiter(this, void 0, void 0, function* () {
+        const pool = yield tarantula_1.SpiderPool.create(1);
+        let errored = false;
+        yield pool.with((spider) => __awaiter(this, void 0, void 0, function* () {
+            return yield spider.exec('gibberish');
+        })).catch(_ => errored = true);
+        // Error should have been raised
+        assert.equal(errored, true);
+        // Acquiring a new Spider should work
+        yield pool.acquire(-1);
+        yield pool.dispose();
     }));
     // TODO: test waitFor
     // TODO: test userAgent

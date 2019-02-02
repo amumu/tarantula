@@ -354,6 +354,12 @@ export class SpiderPool {
         })
     }
 
+    async with<T>(callback: (spider: Spider) => Promise<T>, acquireTimeout: number = 0) {
+        const spider = await this.acquire(acquireTimeout)
+        try { return await callback(spider) }
+        finally { this.release(spider) }
+    }
+
     async dispose() {
         await Promise.all(this.spiders.map(spider => spider.kill()))
         await this.browser.close()

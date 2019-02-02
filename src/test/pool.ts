@@ -139,7 +139,7 @@ describe('SpiderPool', () => {
 
         assert.equal(0, pool.awaiters.length)
         assert.equal(0, pool.spidersBusy.length)
-        pool.dispose()
+        await pool.dispose()
     }).timeout(10000)
 
     it('load page', async () => {
@@ -178,6 +178,37 @@ describe('SpiderPool', () => {
         const spider = await pool.acquire()
         const res = await spider.exec(() => { return {hello: 'world'} })
         assert.equal(JSON.stringify(res), JSON.stringify({hello: 'world'}))
+    })
+
+    it('using with() to auto-release on success', async () => {
+        const pool = await SpiderPool.create(1)
+
+        const res = await pool.with(async spider => {
+            return await spider.exec(() => 'hello world') as string
+        })
+
+        // Result should be expected
+        assert.equal(res, 'hello world')
+
+        // Acquiring a new Spider should work
+        await pool.acquire(-1)
+        await pool.dispose()
+    })
+
+    it('using with() to auto-release on failure', async () => {
+        const pool = await SpiderPool.create(1)
+
+        let errored = false
+        await pool.with(async spider => {
+            return await spider.exec('gibberish') as string
+        }).catch(_ => errored = true)
+
+        // Error should have been raised
+        assert.equal(errored, true)
+
+        // Acquiring a new Spider should work
+        await pool.acquire(-1)
+        await pool.dispose()
     })
 
     // TODO: test waitFor

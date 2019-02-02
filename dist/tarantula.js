@@ -314,6 +314,17 @@ class SpiderPool {
             }));
         });
     }
+    with(callback, acquireTimeout = 0) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const spider = yield this.acquire(acquireTimeout);
+            try {
+                return yield callback(spider);
+            }
+            finally {
+                this.release(spider);
+            }
+        });
+    }
     dispose() {
         return __awaiter(this, void 0, void 0, function* () {
             yield Promise.all(this.spiders.map(spider => spider.kill()));

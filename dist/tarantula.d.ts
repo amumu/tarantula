@@ -92,5 +92,6 @@ export declare class SpiderPool {
      */
     acquire(timeoutMillis?: number): Promise<Spider>;
     release(spider: Spider): Promise<void>;
+    with<T>(callback: (spider: Spider) => Promise<T>, acquireTimeout?: number): Promise<T>;
     dispose(): Promise<void>;
 }
