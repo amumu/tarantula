@@ -37,6 +37,7 @@ export interface DistillerOptions {
     /** Print errors to the console */
     printErrors?: boolean
 }
+export const _DistillerOptionsDefault: DistillerOptions = { engine: 'safari', printErrors: false }
 
 export class Spider {
     verbose: boolean
@@ -220,31 +221,32 @@ export class Spider {
      * Distills the page into a readable format
      */
     async distill(opts?: DistillerOptions): Promise<string> {
-        opts = opts || {engine: 'safari', printErrors: false}
+        // Override default options with user provided ones
+        const opts_ = Object.assign({}, _DistillerOptionsDefault, opts)
 
         let distilled: string
-        if (opts.engine === 'chromium') {
+        if (opts_.engine === 'chromium') {
             await this.exec(
                 fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'))
             distilled = await this.exec(
                 'org.chromium.distiller.DomDistiller.apply()[2][1]')
-                .catch(err => opts.printErrors && console.error(err)) as string
+                .catch(err => opts_.printErrors && console.error(err)) as string
         }
 
-        if (opts.engine === 'firefox') {
+        if (opts_.engine === 'firefox') {
             await this.exec(
                 fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'))
             distilled = await this.exec(
                 'new Readability(document).parse().content')
-                .catch(err => opts.printErrors && console.error(err)) as string
+                .catch(err => opts_.printErrors && console.error(err)) as string
         }
 
-        if (opts.engine === 'safari') {
+        if (opts_.engine === 'safari') {
             await this.exec(
                 fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'))
             distilled = await this.exec(
                 'ReaderArticleFinderJS.articleNode().outerHTML')
-                .catch(err => opts.printErrors && console.error(err)) as string
+                .catch(err => opts_.printErrors && console.error(err)) as string
         }
 
         return distilled || ''

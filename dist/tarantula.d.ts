@@ -29,6 +29,7 @@ export interface DistillerOptions {
     /** Print errors to the console */
     printErrors?: boolean;
 }
+export declare const _DistillerOptionsDefault: DistillerOptions;
 export declare class Spider {
     verbose: boolean;
     ownBrowser: boolean;

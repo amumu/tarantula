@@ -17,6 +17,7 @@ const cooky_1 = require("./cooky");
 exports.Cooky = cooky_1.Cooky;
 const puppeteer = require("puppeteer");
 const devices = require('puppeteer/DeviceDescriptors');
+exports._DistillerOptionsDefault = { engine: 'safari', printErrors: false };
 class Spider {
     constructor(browser, page, ownBrowser = false, verbose = false) {
         this.ownBrowser = false;
@@ -190,22 +191,23 @@ class Spider {
      */
     distill(opts) {
         return __awaiter(this, void 0, void 0, function* () {
-            opts = opts || { engine: 'safari', printErrors: false };
+            // Override default options with user provided ones
+            const opts_ = Object.assign({}, exports._DistillerOptionsDefault, opts);
             let distilled;
-            if (opts.engine === 'chromium') {
+            if (opts_.engine === 'chromium') {
                 yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'));
                 distilled = (yield this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]')
-                    .catch(err => opts.printErrors && console.error(err)));
+                    .catch(err => opts_.printErrors && console.error(err)));
             }
-            if (opts.engine === 'firefox') {
+            if (opts_.engine === 'firefox') {
                 yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'));
                 distilled = (yield this.exec('new Readability(document).parse().content')
-                    .catch(err => opts.printErrors && console.error(err)));
+                    .catch(err => opts_.printErrors && console.error(err)));
             }
-            if (opts.engine === 'safari') {
+            if (opts_.engine === 'safari') {
                 yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'));
                 distilled = (yield this.exec('ReaderArticleFinderJS.articleNode().outerHTML')
-                    .catch(err => opts.printErrors && console.error(err)));
+                    .catch(err => opts_.printErrors && console.error(err)));
             }
             return distilled || '';
         });
