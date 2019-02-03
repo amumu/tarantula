@@ -12,6 +12,11 @@ gulp.task('clean', function() {
 
 // Build tasks
 
+gulp.task('copy', function() {
+    return gulp.src('data/**/*.*')
+        .pipe(gulp.dest('dist/data'));
+});
+
 gulp.task('ts', function() {
     return gulp.src('src/**/*.ts')
         .pipe(ts({
@@ -27,5 +32,5 @@ gulp.task('js', function() {
     return gulp.src('src/**/*.js').pipe(gulp.dest('dist'));
 })
 
-gulp.task('build', gulp.series('js', 'ts'));
+gulp.task('build', gulp.series('copy', 'js', 'ts'));
 gulp.task('default', gulp.series('build'));

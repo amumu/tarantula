@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import * as tmp from 'tmp'
+import * as path from 'path'
 import * as assert from 'assert'
-import { Spider } from '../tarantula'
+import { Spider, DistillerOptions } from '../tarantula'
 
 describe('Spider', () => {
     let spider: Spider
@@ -76,17 +77,18 @@ describe('Spider', () => {
     })
 
     it('use distiller', async () => {
-        await spider.load('https://example.com')
-        const res = await spider.distill()
-        assert(res.length > 0)
+        await spider.load(path.join('file://', __dirname, '..', 'data', 'example_article.html'))
+        for (let engine of ['chromium', 'firefox', 'safari']) {
+            const res = await spider.distill({engine: engine} as DistillerOptions)
+            assert(res.length > 0, `Article length ${res.length} for ${engine} distiller`)
+        }
     }).timeout(10000)
 
     it('create web archive', async () => {
-        const path = tmp.fileSync({postfix: '.mhtml'})
-        await spider.load('https://example.com')
-        await spider.archive(path.name)
-        assert(fs.existsSync(path.name))
-        assert(fs.readFileSync(path.name, 'UTF8').length > 0)
+        const file = tmp.fileSync({postfix: '.mhtml'})
+        await spider.archive(file.name)
+        assert(fs.existsSync(file.name))
+        assert(fs.readFileSync(file.name, 'UTF8').length > 0)
     }).timeout(10000)
 
     // TODO: test waitFor

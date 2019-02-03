@@ -11,22 +11,22 @@ export declare type Response = puppeteer.Response;
 export declare type StringMap = {
     [key: string]: string;
 };
-export interface PostOptions extends Requests.RequestPromiseOptions {
-    /**
-     * Parse set-cookies from response header and copy them to this spider instance by default
-     */
-    rejectCookies?: boolean;
-}
-export interface LoadOptions extends puppeteer.NavigationOptions {
-    /**
-     * "Wipe" the tab by loading about:blank before loading intended URL
-     */
-    blank?: boolean;
-}
 export interface SpiderOptions {
     browser?: puppeteer.Browser;
     emulate?: string;
     verbose?: boolean;
+}
+export interface LoadOptions extends puppeteer.NavigationOptions {
+    /** "Wipe" the tab by loading about:blank before loading intended URL */
+    blank?: boolean;
+}
+export interface PostOptions extends Requests.RequestPromiseOptions {
+    /** Parse set-cookies from response header and copy them to this spider instance by default */
+    rejectCookies?: boolean;
+}
+export interface DistillerOptions {
+    /** Engine used to retrieve a reading-friendly version */
+    engine: 'chromium' | 'firefox' | 'safari';
 }
 export declare class Spider {
     verbose: boolean;
@@ -65,9 +65,9 @@ export declare class Spider {
      */
     post(url: string, opts?: PostOptions): Promise<any>;
     /**
-     * Injects the distiller used by Firefox into the webpage and returns the main content.
+     * Distills the page into a readable format
      */
-    distill(): Promise<string>;
+    distill(opts?: DistillerOptions): Promise<string>;
     /**
      * Saves the current page into a web archive in MHTML format
      * @param path local destination of the web archive MHTML file

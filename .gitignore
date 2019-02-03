@@ -2,6 +2,7 @@
 
 # Node 8.x stuff
 package-lock.json
+yarn.lock
 
 # Logs
 logs

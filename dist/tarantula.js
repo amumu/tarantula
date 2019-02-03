@@ -186,15 +186,28 @@ class Spider {
         });
     }
     /**
-     * Injects the distiller used by Firefox into the webpage and returns the main content.
+     * Distills the page into a readable format
      */
-    distill() {
+    distill(opts) {
         return __awaiter(this, void 0, void 0, function* () {
-            // await this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'))
-            // const distilled = await this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]')
-            yield this.exec(fs.readFileSync(path.join(__dirname, 'readability.js'), 'UTF8'));
-            const distilled = yield this.exec('new Readability(document).parse().content');
-            return distilled;
+            opts = opts || { engine: 'safari' };
+            let distilled;
+            if (opts.engine === 'chromium') {
+                yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'));
+                distilled = (yield this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]')
+                    .catch(err => console.error(err)));
+            }
+            if (opts.engine === 'firefox') {
+                yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'));
+                distilled = (yield this.exec('new Readability(document).parse().content')
+                    .catch(err => console.error(err)));
+            }
+            if (opts.engine === 'safari') {
+                yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'));
+                distilled = (yield this.exec('ReaderArticleFinderJS.articleNode().outerHTML')
+                    .catch(err => console.error(err)));
+            }
+            return distilled || '';
         });
     }
     /**
@@ -302,8 +315,8 @@ class SpiderPool {
                 if (idx === -1) {
                     throw new Error('Spider not found. Did you call release twice?');
                 }
-                // Load blank page and callback the first awaiter
-                yield spider.load('about:blank');
+                // Callback the first awaiter
+                // await spider.load('about:blank')
                 if (this.awaiters.length > 0) {
                     yield this.awaiters.shift()(spider);
                     // If no awaiter, just add to the list of free

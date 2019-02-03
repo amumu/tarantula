@@ -15,24 +15,25 @@ export type Request = puppeteer.Request
 export type Response = puppeteer.Response
 export type StringMap = {[key: string]: string}
 
-export interface PostOptions extends Requests.RequestPromiseOptions {
-    /**
-     * Parse set-cookies from response header and copy them to this spider instance by default
-     */
-    rejectCookies?: boolean
-}
-
-export interface LoadOptions extends puppeteer.NavigationOptions {
-    /**
-     * "Wipe" the tab by loading about:blank before loading intended URL
-     */
-    blank?: boolean
-}
-
 export interface SpiderOptions {
     browser?: puppeteer.Browser,
     emulate?: string,
     verbose?: boolean
+}
+
+export interface LoadOptions extends puppeteer.NavigationOptions {
+    /** "Wipe" the tab by loading about:blank before loading intended URL */
+    blank?: boolean
+}
+
+export interface PostOptions extends Requests.RequestPromiseOptions {
+    /** Parse set-cookies from response header and copy them to this spider instance by default */
+    rejectCookies?: boolean
+}
+
+export interface DistillerOptions {
+    /** Engine used to retrieve a reading-friendly version */
+    engine: 'chromium' | 'firefox' | 'safari'
 }
 
 export class Spider {
@@ -214,14 +215,37 @@ export class Spider {
     }
 
     /**
-     * Injects the distiller used by Firefox into the webpage and returns the main content.
+     * Distills the page into a readable format
      */
-    async distill() {
-        // await this.exec(fs.readFileSync(path.join(__dirname, 'distiller.js'), 'UTF8'))
-        // const distilled = await this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]')
-        await this.exec(fs.readFileSync(path.join(__dirname, 'readability.js'), 'UTF8'))
-        const distilled = await this.exec('new Readability(document).parse().content')
-        return distilled as string
+    async distill(opts?: DistillerOptions): Promise<string> {
+        opts = opts || {engine: 'safari'}
+
+        let distilled: string
+        if (opts.engine === 'chromium') {
+            await this.exec(
+                fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'))
+            distilled = await this.exec(
+                'org.chromium.distiller.DomDistiller.apply()[2][1]')
+                .catch(err => console.error(err)) as string
+        }
+
+        if (opts.engine === 'firefox') {
+            await this.exec(
+                fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'))
+            distilled = await this.exec(
+                'new Readability(document).parse().content')
+                .catch(err => console.error(err)) as string
+        }
+
+        if (opts.engine === 'safari') {
+            await this.exec(
+                fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'))
+            distilled = await this.exec(
+                'ReaderArticleFinderJS.articleNode().outerHTML')
+                .catch(err => console.error(err)) as string
+        }
+
+        return distilled || ''
     }
 
     /**
@@ -341,8 +365,8 @@ export class SpiderPool {
                 throw new Error('Spider not found. Did you call release twice?')
             }
 
-            // Load blank page and callback the first awaiter
-            await spider.load('about:blank')
+            // Callback the first awaiter
+            // await spider.load('about:blank')
             if (this.awaiters.length > 0) {
                 await this.awaiters.shift()(spider)
 

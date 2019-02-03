@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const tmp = require("tmp");
+const path = require("path");
 const assert = require("assert");
 const tarantula_1 = require("../tarantula");
 describe('Spider', () => {
@@ -78,16 +79,17 @@ describe('Spider', () => {
         assert.equal(JSON.stringify(res), JSON.stringify({ hello: 'world' }));
     }));
     it('use distiller', () => __awaiter(this, void 0, void 0, function* () {
-        yield spider.load('https://example.com');
-        const res = yield spider.distill();
-        assert(res.length > 0);
+        yield spider.load(path.join('file://', __dirname, '..', 'data', 'example_article.html'));
+        for (let engine of ['chromium', 'firefox', 'safari']) {
+            const res = yield spider.distill({ engine: engine });
+            assert(res.length > 0, `Article length ${res.length} for ${engine} distiller`);
+        }
     })).timeout(10000);
     it('create web archive', () => __awaiter(this, void 0, void 0, function* () {
-        const path = tmp.fileSync({ postfix: '.mhtml' });
-        yield spider.load('https://example.com');
-        yield spider.archive(path.name);
-        assert(fs.existsSync(path.name));
-        assert(fs.readFileSync(path.name, 'UTF8').length > 0);
+        const file = tmp.fileSync({ postfix: '.mhtml' });
+        yield spider.archive(file.name);
+        assert(fs.existsSync(file.name));
+        assert(fs.readFileSync(file.name, 'UTF8').length > 0);
     })).timeout(10000);
     // TODO: test waitFor
     // TODO: test userAgent

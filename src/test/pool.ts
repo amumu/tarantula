@@ -211,6 +211,19 @@ describe('SpiderPool', () => {
         await pool.dispose()
     })
 
+    it('using with() to load page', async () => {
+        const pool = await SpiderPool.create(1)
+        // Acquire using with() several times to confirm state handling
+        for (let i = 0; i < 3; i++) {
+            const res = await pool.with(async spider => {
+                await spider.load('https://google.com')
+                return await spider.exec(() => document.title) as string
+            })
+            assert.equal(res, 'Google')
+        }
+        await pool.dispose()
+    }).timeout(10000)
+
     // TODO: test waitFor
     // TODO: test userAgent
 })

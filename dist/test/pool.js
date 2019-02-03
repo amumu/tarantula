@@ -187,6 +187,18 @@ describe('SpiderPool', () => {
         yield pool.acquire(-1);
         yield pool.dispose();
     }));
+    it('using with() to load page', () => __awaiter(this, void 0, void 0, function* () {
+        const pool = yield tarantula_1.SpiderPool.create(1);
+        // Acquire using with() several times to confirm state handling
+        for (let i = 0; i < 3; i++) {
+            const res = yield pool.with((spider) => __awaiter(this, void 0, void 0, function* () {
+                yield spider.load('https://google.com');
+                return yield spider.exec(() => document.title);
+            }));
+            assert.equal(res, 'Google');
+        }
+        yield pool.dispose();
+    })).timeout(10000);
     // TODO: test waitFor
     // TODO: test userAgent
 });
