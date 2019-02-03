@@ -34,6 +34,8 @@ export interface PostOptions extends Requests.RequestPromiseOptions {
 export interface DistillerOptions {
     /** Engine used to retrieve a reading-friendly version */
     engine: 'chromium' | 'firefox' | 'safari'
+    /** Print errors to the console */
+    printErrors?: boolean
 }
 
 export class Spider {
@@ -218,7 +220,7 @@ export class Spider {
      * Distills the page into a readable format
      */
     async distill(opts?: DistillerOptions): Promise<string> {
-        opts = opts || {engine: 'safari'}
+        opts = opts || {engine: 'safari', printErrors: false}
 
         let distilled: string
         if (opts.engine === 'chromium') {
@@ -226,7 +228,7 @@ export class Spider {
                 fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'))
             distilled = await this.exec(
                 'org.chromium.distiller.DomDistiller.apply()[2][1]')
-                .catch(err => console.error(err)) as string
+                .catch(err => opts.printErrors && console.error(err)) as string
         }
 
         if (opts.engine === 'firefox') {
@@ -234,7 +236,7 @@ export class Spider {
                 fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'))
             distilled = await this.exec(
                 'new Readability(document).parse().content')
-                .catch(err => console.error(err)) as string
+                .catch(err => opts.printErrors && console.error(err)) as string
         }
 
         if (opts.engine === 'safari') {
@@ -242,7 +244,7 @@ export class Spider {
                 fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'))
             distilled = await this.exec(
                 'ReaderArticleFinderJS.articleNode().outerHTML')
-                .catch(err => console.error(err)) as string
+                .catch(err => opts.printErrors && console.error(err)) as string
         }
 
         return distilled || ''

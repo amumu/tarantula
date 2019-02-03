@@ -1,5 +1,4 @@
 /// <reference types="request-promise-native" />
-/// <reference types="node" />
 import * as url from 'url';
 import { Requests } from 'ootils';
 import { Mutex } from 'await-semaphore';
@@ -27,6 +26,8 @@ export interface PostOptions extends Requests.RequestPromiseOptions {
 export interface DistillerOptions {
     /** Engine used to retrieve a reading-friendly version */
     engine: 'chromium' | 'firefox' | 'safari';
+    /** Print errors to the console */
+    printErrors?: boolean;
 }
 export declare class Spider {
     verbose: boolean;

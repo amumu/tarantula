@@ -190,22 +190,22 @@ class Spider {
      */
     distill(opts) {
         return __awaiter(this, void 0, void 0, function* () {
-            opts = opts || { engine: 'safari' };
+            opts = opts || { engine: 'safari', printErrors: false };
             let distilled;
             if (opts.engine === 'chromium') {
                 yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'));
                 distilled = (yield this.exec('org.chromium.distiller.DomDistiller.apply()[2][1]')
-                    .catch(err => console.error(err)));
+                    .catch(err => opts.printErrors && console.error(err)));
             }
             if (opts.engine === 'firefox') {
                 yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'));
                 distilled = (yield this.exec('new Readability(document).parse().content')
-                    .catch(err => console.error(err)));
+                    .catch(err => opts.printErrors && console.error(err)));
             }
             if (opts.engine === 'safari') {
                 yield this.exec(fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'));
                 distilled = (yield this.exec('ReaderArticleFinderJS.articleNode().outerHTML')
-                    .catch(err => console.error(err)));
+                    .catch(err => opts.printErrors && console.error(err)));
             }
             return distilled || '';
         });
