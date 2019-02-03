@@ -29,7 +29,6 @@
     "@types/puppeteer": "^1.11.2",
     "await-semaphore": "^0.1.3",
     "minimist": "^1.2.0",
-    "node-readability": "^3.0.0",
     "ootils": "gitlab:omtinez/ootils",
     "puppeteer": "^1.11.0"
   },
