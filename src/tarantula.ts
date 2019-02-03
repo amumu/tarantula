@@ -230,7 +230,7 @@ export class Spider {
                 fs.readFileSync(path.join(__dirname, 'distillers', 'chromium.js'), 'UTF8'))
             distilled = await this.exec(
                 'org.chromium.distiller.DomDistiller.apply()[2][1]')
-                .catch(err => opts_.printErrors && null) as string
+                .catch(err => opts_.printErrors && console.error(err)) as string
         }
 
         if (opts_.engine === 'firefox') {
@@ -238,7 +238,7 @@ export class Spider {
                 fs.readFileSync(path.join(__dirname, 'distillers', 'firefox.js'), 'UTF8'))
             distilled = await this.exec(
                 'new Readability(document).parse().content')
-                .catch(err => opts_.printErrors && null) as string
+                .catch(err => opts_.printErrors && console.error(err)) as string
         }
 
         if (opts_.engine === 'safari') {
@@ -246,7 +246,7 @@ export class Spider {
                 fs.readFileSync(path.join(__dirname, 'distillers', 'safari.js'), 'UTF8'))
             distilled = await this.exec(
                 'ReaderArticleFinderJS.articleNode().outerHTML')
-                .catch(err => opts_.printErrors && null) as string
+                .catch(err => opts_.printErrors && console.error(err)) as string
         }
 
         return distilled || ''

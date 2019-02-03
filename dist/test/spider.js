@@ -82,9 +82,16 @@ describe('Spider', () => {
         yield spider.load(path.join('file://', __dirname, '..', 'data', 'example_article.html'));
         for (let engine of ['chromium', 'firefox', 'safari']) {
             const res = yield spider.distill({ engine: engine });
-            assert(res.length > 0, `Article length ${res.length} for ${engine} distiller`);
+            assert(res.length > 0, `Article length ${res.length} for ${engine} distiller: ${res}`);
         }
-    })).timeout(10000);
+    }));
+    it('use distiller failure', () => __awaiter(this, void 0, void 0, function* () {
+        yield spider.page.setContent('<h1>gibberish</h1>');
+        for (let engine of ['chromium', 'firefox', 'safari']) {
+            const res = yield spider.distill({ engine: engine });
+            assert(res.length === 0, `Article length ${res.length} for ${engine} distiller: ${res}`);
+        }
+    }));
     it('create web archive', () => __awaiter(this, void 0, void 0, function* () {
         const file = tmp.fileSync({ postfix: '.mhtml' });
         yield spider.archive(file.name);
